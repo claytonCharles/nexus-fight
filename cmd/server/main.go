@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/claytonCharles/nexus-fight/internal/database"
+	"github.com/claytonCharles/nexus-fight/internal/modules/students"
 	"github.com/claytonCharles/nexus-fight/pkg/nexus"
 	middlewares "github.com/claytonCharles/nexus-fight/pkg/nexus/middleware"
 )
@@ -27,6 +28,11 @@ func main() {
 		app.Logger.Error("Fail on running migrations!", err)
 		panic("Fail on running migrations!")
 	}
+
+	hs := students.NewHandler(db, app.Logger)
+
+	app.GET("/student/list", hs.ListStudents)
+	app.POST("/student/create", hs.CreateStudent)
 
 	app.GET("/", func(hc *nexus.HttpContext) {
 		hc.ResponseJson("Hello World!", 200)
