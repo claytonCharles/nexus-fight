@@ -2,16 +2,30 @@ package nexus
 
 import (
 	"net/http"
+
+	"github.com/claytonCharles/nexus-fight/pkg/nexus/logger"
 )
 
 type Nexus struct {
 	router *Router
+	Logger *logger.Logger
 }
 
 func NewApp() *Nexus {
 	return &Nexus{
 		router: NewRouter(),
+		Logger: nil,
 	}
+}
+
+func (nx *Nexus) SetupLogger(pathDir string) error {
+	logger, err := logger.NewLogger(pathDir)
+	if err != nil {
+		return err
+	}
+
+	nx.Logger = logger
+	return nil
 }
 
 func (nx *Nexus) UseMiddleware(mid Middleware) {

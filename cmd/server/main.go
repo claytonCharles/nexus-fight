@@ -14,6 +14,7 @@ func main() {
 	app := nexus.NewApp()
 	app.UseMiddleware(middlewares.Recovering())
 	app.UseMiddleware(middlewares.Logging())
+	app.SetupLogger("data/logs")
 
 	db, err := database.InitializeDatabase()
 	if err != nil {
@@ -23,7 +24,7 @@ func main() {
 	defer db.Conn.Close()
 
 	if err := db.AutoMigrate(); err != nil {
-		log.Println("Fail on running migrations!", err)
+		app.Logger.Error("Fail on running migrations!", err)
 		panic("Fail on running migrations!")
 	}
 
@@ -32,6 +33,7 @@ func main() {
 	})
 
 	app.GET("/panic", func(hc *nexus.HttpContext) {
+		app.Logger.Error("Logger Recover test")
 		panic("Recover test")
 	})
 
