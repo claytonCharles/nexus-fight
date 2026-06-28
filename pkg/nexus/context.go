@@ -66,7 +66,6 @@ func (hc *HttpContext) ValidateJson(data any) ValidateError {
 }
 
 func (hc *HttpContext) validRules(key string, value string, rules string, errors ValidateError) {
-	fmt.Println(key)
 	if rules == "" {
 		return
 	}
