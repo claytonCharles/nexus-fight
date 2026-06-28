@@ -22,6 +22,11 @@ func main() {
 	}
 	defer db.Conn.Close()
 
+	if err := db.AutoMigrate(); err != nil {
+		log.Println("Fail on running migrations!", err)
+		panic("Fail on running migrations!")
+	}
+
 	app.GET("/", func(hc *nexus.HttpContext) {
 		hc.ResponseJson("Hello World!", 200)
 	})
