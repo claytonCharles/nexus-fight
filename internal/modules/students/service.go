@@ -36,7 +36,8 @@ func (ss *StudentService) ListStudents() ([]models.Student, error) {
 }
 
 func (ss *StudentService) CreateStudent(student dtos.SaveStudentDTO) error {
-	err := ss.repository.ValidedStudentData(*student.Email, *student.Phone, *student.CPF)
+	student.Normalize()
+	err := ss.repository.ValidateStudentData(student.Email, student.Phone, student.CPF)
 	if err == ErrEmailAlreadyExists || err == ErrPhoneAlreadyExists || err == ErrCPFAlreadyExists {
 		return err
 	}

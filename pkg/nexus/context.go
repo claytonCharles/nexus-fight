@@ -72,6 +72,11 @@ func (hc *HttpContext) validRules(key string, value string, rules string, errors
 
 	for rule := range strings.SplitSeq(rules, "|") {
 		switch {
+		case rule == "nullable":
+			if strings.TrimSpace(value) == "" {
+				delete(errors, key)
+				return
+			}
 		case rule == "required":
 			if strings.TrimSpace(value) == "" {
 				errors[key] = append(errors[key], "Field is required.")
@@ -85,6 +90,11 @@ func (hc *HttpContext) validRules(key string, value string, rules string, errors
 			min, _ := strconv.Atoi(strings.TrimPrefix(rule, "min="))
 			if len(value) < min {
 				errors[key] = append(errors[key], fmt.Sprintf("Field needed a min %d characters.", min))
+			}
+		case strings.HasPrefix(rule, "max="):
+			max, _ := strconv.Atoi(strings.TrimPrefix(rule, "max="))
+			if len(value) > max {
+				errors[key] = append(errors[key], fmt.Sprintf("Field can have at most %d characters.", max))
 			}
 		}
 	}

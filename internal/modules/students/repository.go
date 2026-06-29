@@ -1,7 +1,6 @@
 package students
 
 import (
-	"database/sql"
 	"errors"
 	"time"
 
@@ -61,41 +60,38 @@ func (sr *StudentRepository) ListStudents() ([]models.Student, error) {
 	return students, nil
 }
 
-func (sr *StudentRepository) ValidedStudentData(email string, phone string, cpf string) error {
-	query := `
-		SELECT
-			email = ? AS email_exists,
-			phone = ? AS phone_exists,
-			cpf = ? AS cpf_exists
-		FROM tb_students
-		WHERE email = ?
-		OR phone = ?
-		OR cpf = ?
-		LIMIT 1
-	`
-
-	row := sr.db.Conn.QueryRow(query, email, phone, cpf, email, phone, cpf)
-
-	var emailExists, phoneExists, cpfExists bool
-
-	err := row.Scan(&emailExists, &phoneExists, &cpfExists)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil
+func (sr *StudentRepository) ValidateStudentData(email *string, phone *string, cpf *string) error {
+	if email != nil {
+		exists, err := sr.exists("SELECT EXISTS(SELECT 1 FROM tb_students WHERE email = ?)", *email)
+		if err != nil {
+			return err
 		}
-		return err
+
+		if exists {
+			return ErrEmailAlreadyExists
+		}
 	}
 
-	if emailExists {
-		return ErrEmailAlreadyExists
+	if phone != nil {
+		exists, err := sr.exists("SELECT EXISTS(SELECT 1 FROM tb_students WHERE phone = ?)", *phone)
+		if err != nil {
+			return err
+		}
+
+		if exists {
+			return ErrPhoneAlreadyExists
+		}
 	}
 
-	if phoneExists {
-		return ErrPhoneAlreadyExists
-	}
+	if cpf != nil {
+		exists, err := sr.exists("SELECT EXISTS(SELECT 1 FROM tb_students WHERE cpf = ?)", *cpf)
+		if err != nil {
+			return err
+		}
 
-	if cpfExists {
-		return ErrCPFAlreadyExists
+		if exists {
+			return ErrCPFAlreadyExists
+		}
 	}
 
 	return nil
@@ -123,4 +119,15 @@ func (sr *StudentRepository) CreateStudent(
 	}
 
 	return nil
+}
+
+func (sr *StudentRepository) exists(query string, value string) (bool, error) {
+	var exists bool
+
+	err := sr.db.Conn.QueryRow(query, value).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }
