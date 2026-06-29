@@ -130,7 +130,7 @@ export default function CreateStudentModal({ open, onClose, onSuccess, studentTo
           />
 
           {errors.name?.map((error) => (
-            <p key={error} className="mt-1 text-sm text-red-500">
+            <p key={error} className="mt-1 text-sm text-destructive">
               {error}
             </p>
           ))}
@@ -148,7 +148,7 @@ export default function CreateStudentModal({ open, onClose, onSuccess, studentTo
           />
 
           {errors.email?.map((error) => (
-            <p key={error} className="mt-1 text-sm text-red-500">
+            <p key={error} className="mt-1 text-sm text-destructive">
               {error}
             </p>
           ))}
@@ -165,7 +165,7 @@ export default function CreateStudentModal({ open, onClose, onSuccess, studentTo
           />
 
           {errors.phone?.map((error) => (
-            <p key={error} className="mt-1 text-sm text-red-500">
+            <p key={error} className="mt-1 text-sm text-destructive">
               {error}
             </p>
           ))}
@@ -182,7 +182,7 @@ export default function CreateStudentModal({ open, onClose, onSuccess, studentTo
           />
 
           {errors.cpf?.map((error) => (
-            <p key={error} className="mt-1 text-sm text-red-500">
+            <p key={error} className="mt-1 text-sm text-destructive">
               {error}
             </p>
           ))}
@@ -195,14 +195,14 @@ export default function CreateStudentModal({ open, onClose, onSuccess, studentTo
             name="gender"
             value={form.gender}
             onChange={handleChange}
-            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm shadow-sm outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
+            className="w-full rounded-xl border border-border bg-input px-3.5 py-2.5 text-sm shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
           >
             <option value="M">Masculino</option>
             <option value="F">Feminino</option>
           </select>
 
           {errors.gender?.map((error) => (
-            <p key={error} className="mt-1 text-sm text-red-500">
+            <p key={error} className="mt-1 text-sm text-destructive">
               {error}
             </p>
           ))}
@@ -219,7 +219,7 @@ export default function CreateStudentModal({ open, onClose, onSuccess, studentTo
           />
 
           {errors.headquarters?.map((error) => (
-            <p key={error} className="mt-1 text-sm text-red-500">
+            <p key={error} className="mt-1 text-sm text-destructive">
               {error}
             </p>
           ))}
@@ -237,7 +237,7 @@ export default function CreateStudentModal({ open, onClose, onSuccess, studentTo
           />
 
           {errors.birthday?.map((error) => (
-            <p key={error} className="mt-1 text-sm text-red-500">
+            <p key={error} className="mt-1 text-sm text-destructive">
               {error}
             </p>
           ))}

@@ -8,10 +8,10 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 const baseClasses = "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
 const variantClasses = {
-  primary: "bg-amber-600 text-white hover:bg-amber-700 focus:ring-amber-500 shadow-sm",
-  secondary: "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus:ring-slate-400",
-  ghost: "text-slate-700 hover:bg-slate-100 focus:ring-slate-400",
-  danger: "bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500 shadow-sm",
+  primary: "bg-primary text-primary-foreground hover:brightness-90 focus:ring-primary shadow-sm",
+  secondary: "border border-border bg-card text-card-foreground hover:bg-popover focus:ring-ring",
+  ghost: "text-foreground hover:bg-popover focus:ring-ring",
+  danger: "bg-destructive text-destructive-foreground hover:brightness-90 focus:ring-destructive shadow-sm",
 };
 
 const sizeClasses = {

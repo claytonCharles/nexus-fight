@@ -106,19 +106,19 @@ export default function Students() {
       />
 
       <section className="space-y-6">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
           <Breadcrumb items={[{ label: "Dashboard", to: "/" }, { label: "Alunos" }]} />
           <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h2 className="text-3xl font-semibold text-slate-900">Alunos</h2>
-              <p className="mt-1 text-slate-500">Lista de alunos cadastrados e em acompanhamento.</p>
+              <h2 className="text-3xl font-semibold text-card-foreground">Alunos</h2>
+              <p className="mt-1 text-muted-foreground">Lista de alunos cadastrados e em acompanhamento.</p>
             </div>
           </div>
         </div>
 
         <div className="flex justify-center">
           <Card className="w-full max-w-6xl overflow-hidden">
-            <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-50/80 p-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-3 border-b border-border bg-popover/80 p-4 md:flex-row md:items-center md:justify-between">
               <div className="w-full md:max-w-sm">
                 <Input
                   placeholder="Busca por nome, email, telefone ou cpf."
@@ -135,8 +135,8 @@ export default function Students() {
               </Button>
             </div>
 
-            <table className="w-full border-collapse">
-              <thead className="border-b border-slate-200 bg-slate-50/80">
+              <table className="w-full border-collapse">
+              <thead className="border-b border-border bg-popover/80">
                 <tr>
                   <th className="px-4 py-3 text-left">Nome</th>
                   <th className="px-4 py-3 text-left">Email</th>
@@ -151,16 +151,13 @@ export default function Students() {
                   <tr>
                     <td colSpan={5} className="h-80">
                       <div className="flex h-full items-center justify-center">
-                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-blue-600" />
+                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
                       </div>
                     </td>
                   </tr>
                 ) : error ? (
                   <tr>
-                    <td
-                      colSpan={5}
-                      className="h-80 text-center text-red-600"
-                    >
+                    <td colSpan={5} className="h-80 text-center text-destructive">
                       {error}
                     </td>
                   </tr>
@@ -168,38 +165,29 @@ export default function Students() {
                   <tr>
                     <td colSpan={5} className="h-80">
                       <div className="flex h-full items-center justify-center">
-                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-blue-600" />
+                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
                       </div>
                     </td>
                   </tr>
                 ) : students.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={5}
-                      className="h-80 text-center text-slate-500"
-                    >
+                    <td colSpan={5} className="h-80 text-center text-muted-foreground">
                       Nenhum aluno encontrado.
                     </td>
                   </tr>
                 ) : (
                   students.map((student) => (
-                    <tr
-                      key={student.id}
-                      className="border-b border-slate-200 hover:bg-slate-50/70"
-                    >
-                      <td className="px-4 py-3">{student.name}</td>
-                      <td className="px-4 py-3">{student.email ?? "-"}</td>
-                      <td className="px-4 py-3">{student.phone ?? "-"}</td>
-                      <td className="px-4 py-3">
-                        {student.birthday
-                          ? new Date(student.birthday).toLocaleDateString("pt-BR")
-                          : "-"
-                        }
+                    <tr key={student.id} className="border-b border-border hover:bg-popover/70">
+                      <td className="px-4 py-3 text-card-foreground">{student.name}</td>
+                      <td className="px-4 py-3 text-card-foreground">{student.email ?? "-"}</td>
+                      <td className="px-4 py-3 text-card-foreground">{student.phone ?? "-"}</td>
+                      <td className="px-4 py-3 text-card-foreground">
+                        {student.birthday ? new Date(student.birthday).toLocaleDateString("pt-BR") : "-"}
                       </td>
                       <td className="px-4 py-3">
                         <Link
                           to={`/students/${student.id}`}
-                          className="rounded-full border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:border-amber-500 hover:bg-amber-50 hover:text-amber-700"
+                          className="rounded-full border border-border px-3 py-1.5 text-sm font-medium text-card-foreground transition hover:border-primary hover:bg-primary/10 hover:text-primary-foreground"
                         >
                           Ver detalhes
                         </Link>
