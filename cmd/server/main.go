@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/claytonCharles/nexus-fight/internal/database"
+	"github.com/claytonCharles/nexus-fight/internal/modules/bioimpedances"
 	"github.com/claytonCharles/nexus-fight/internal/modules/students"
 	"github.com/claytonCharles/nexus-fight/internal/web"
 	"github.com/claytonCharles/nexus-fight/pkg/nexus"
@@ -31,12 +32,16 @@ func main() {
 	}
 
 	hs := students.NewHandler(db, app.Logger)
-
 	app.GET("/api/student/list", hs.ListStudents)
 	app.GET("/api/student/show", hs.ShowStudent)
 	app.POST("/api/student/create", hs.CreateStudent)
 	app.POST("/api/student/update", hs.UpdateStudent)
 	app.DELETE("/api/student/delete", hs.DeactivateStudent)
+
+	hb := bioimpedances.NewHandler(db, app.Logger)
+	app.GET("/api/bioimpedance/list", hb.ListBios)
+	app.POST("/api/bioimpedance/create", hb.CreateBio)
+
 	app.Handler("/", web.SpaHandler())
 
 	fmt.Printf("Server on http://0.0.0.0:8001\n")
