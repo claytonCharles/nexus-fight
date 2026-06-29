@@ -1,33 +1,69 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { listStudents } from "@/services/students";
 import type { Student } from "@/types/students";
 import CreateStudentModal from "@/components/partials/create-student-modal";
+import Pagination from "@/components/partials/pagination";
 
 export default function Students() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isSwitchingPage, setIsSwitchingPage] = useState(false);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
-  async function fetchStudents() {
+  const updatePageInUrl = (page: number) => {
+    const searchParams = new URLSearchParams(location.search);
+    const pageFromUrl = Number(searchParams.get("page") || "1");
+
+    if (page === pageFromUrl) {
+      return;
+    }
+
+    searchParams.set("page", String(page));
+
+    navigate({ pathname: location.pathname, search: searchParams.toString() ? `?${searchParams.toString()}` : "" }, { replace: true });
+  };
+
+  async function fetchStudents(page = currentPage) {
+    const isPageChange = page !== currentPage && hasLoadedOnce;
+
     try {
-      setLoading(true);
       setError("");
 
-      const data = await listStudents();
-      setStudents(data);
+      if (!hasLoadedOnce) {
+        setLoading(true);
+      } else if (isPageChange) {
+        setIsSwitchingPage(true);
+      }
+
+      const data = await listStudents(page);
+      setStudents(data.list_student);
+      setCurrentPage(data.page);
+      setTotalPages(Math.max(1, Math.ceil(data.total / data.per_page)));
+      setHasLoadedOnce(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro inesperado.");
     } finally {
       setLoading(false);
+      setIsSwitchingPage(false);
     }
   }
 
   useEffect(() => {
-    fetchStudents();
-  }, []);
+    const params = new URLSearchParams(location.search);
+    const pageFromUrl = Number(params.get("page") || "1");
+    const safePage = Number.isNaN(pageFromUrl) || pageFromUrl < 1 ? 1 : pageFromUrl;
+
+    setCurrentPage(safePage);
+    fetchStudents(safePage);
+  }, [location.search]);
 
   function openCreateModal() {
     setEditingStudent(null);
@@ -44,7 +80,7 @@ export default function Students() {
       <CreateStudentModal
         open={open}
         onClose={closeModal}
-        onSuccess={fetchStudents}
+        onSuccess={() => fetchStudents(1)}
         studentToEdit={editingStudent}
       />
 
@@ -82,7 +118,7 @@ export default function Students() {
               </thead>
 
               <tbody>
-                {loading ? (
+                {loading && !isSwitchingPage ? (
                   <tr>
                     <td colSpan={5} className="h-80">
                       <div className="flex h-full items-center justify-center">
@@ -97,6 +133,14 @@ export default function Students() {
                       className="h-80 text-center text-red-600"
                     >
                       {error}
+                    </td>
+                  </tr>
+                ) : isSwitchingPage ? (
+                  <tr>
+                    <td colSpan={5} className="h-80">
+                      <div className="flex h-full items-center justify-center">
+                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-blue-600" />
+                      </div>
                     </td>
                   </tr>
                 ) : students.length === 0 ? (
@@ -136,6 +180,12 @@ export default function Students() {
                 )}
               </tbody>
             </table>
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => updatePageInUrl(page)}
+            />
           </div>
         </div>
       </section>

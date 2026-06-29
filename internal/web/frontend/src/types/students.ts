@@ -21,3 +21,10 @@ export interface CreateStudentDTO {
   headquarters: string;
   birthday: string;
 }
+
+export interface StudentListResponse {
+  list_student: Student[];
+  page: number;
+  per_page: number;
+  total: number;
+}

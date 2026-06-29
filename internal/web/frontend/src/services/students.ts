@@ -1,10 +1,12 @@
 import axios from "axios";
 import api from "@/lib/api";
-import type { CreateStudentDTO, Student } from "@/types/students";
+import type { CreateStudentDTO, Student, StudentListResponse } from "@/types/students";
 
-export async function listStudents(): Promise<Student[]> {
+export async function listStudents(page = 1): Promise<StudentListResponse> {
   try {
-    const { data } = await api.get<Student[]>("/student/list");
+    const { data } = await api.get<StudentListResponse>("/student/list", {
+      params: { page },
+    });
     return data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
