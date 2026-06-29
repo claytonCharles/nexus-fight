@@ -1,6 +1,8 @@
 package students
 
 import (
+	"strings"
+
 	"github.com/claytonCharles/nexus-fight/internal/database"
 	"github.com/claytonCharles/nexus-fight/internal/modules/students/dtos"
 	"github.com/claytonCharles/nexus-fight/pkg/nexus"
@@ -35,6 +37,7 @@ func (h *Handler) CreateStudent(hc *nexus.HttpContext) {
 		return
 	}
 
+	studentDto.Normalize()
 	err := h.service.CreateStudent(studentDto)
 	if err != nil {
 		hc.ResponseJson(err.Error(), 400)
@@ -42,4 +45,27 @@ func (h *Handler) CreateStudent(hc *nexus.HttpContext) {
 	}
 
 	hc.ResponseJson("New Student created successfully!", 200)
+}
+
+func (h *Handler) UpdateStudent(hc *nexus.HttpContext) {
+	id := hc.Params().Get("id")
+	if strings.TrimSpace(id) == "" {
+		hc.ResponseJson("ID Student is needed!", 400)
+		return
+	}
+
+	var studentDto dtos.SaveStudentDTO
+	if err := hc.ValidateJson(&studentDto); len(err) >= 1 {
+		hc.ResponseJson(err, 400)
+		return
+	}
+
+	studentDto.Normalize()
+	err := h.service.UpdateStudent(studentDto, id)
+	if err != nil {
+		hc.ResponseJson(err.Error(), 400)
+		return
+	}
+
+	hc.ResponseJson("Updated student successfully!", 200)
 }

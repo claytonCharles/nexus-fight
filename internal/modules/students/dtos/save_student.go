@@ -9,7 +9,7 @@ type SaveStudentDTO struct {
 	Name         string     `json:"name" rules:"required|min=3"`
 	Email        *string    `json:"email" rules:"nullable|email"`
 	Phone        *string    `json:"phone" rules:"nullable"`
-	CPF          *string    `json:"cpf" rules:"nullable"`
+	CPF          *string    `json:"cpf" rules:"nullable|len=11"`
 	Gender       string     `json:"gender" rules:"required|max=1"`
 	Headquarters string     `json:"headquarters" rules:"required"`
 	Birthday     *time.Time `json:"birthday" rules:"required"`

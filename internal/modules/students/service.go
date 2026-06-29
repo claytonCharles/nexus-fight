@@ -14,8 +14,10 @@ type StudentService struct {
 }
 
 var (
-	ErrDuplicatedData = errors.New("Some information (email, phone, or CPF) is duplicated.")
-	ErrCreateStudent  = errors.New("Error on create a new student!")
+	ErrDuplicatedData  = errors.New("Some information (email, phone, or CPF) is duplicated.")
+	ErrCreateStudent   = errors.New("Error on create a new student!")
+	ErrStudentNotFound = errors.New("Student is not found!")
+	ErrUpdateStudent   = errors.New("Updated student information unsuccessfully!")
 )
 
 func NewService(repo *StudentRepository, log *logger.Logger) *StudentService {
@@ -35,9 +37,8 @@ func (ss *StudentService) ListStudents() ([]models.Student, error) {
 	return students, nil
 }
 
-func (ss *StudentService) CreateStudent(student dtos.SaveStudentDTO) error {
-	student.Normalize()
-	err := ss.repository.ValidateStudentData(student.Email, student.Phone, student.CPF)
+func (ss *StudentService) CreateStudent(studentDto dtos.SaveStudentDTO) error {
+	err := ss.repository.ValidateStudentData(studentDto.Email, studentDto.Phone, studentDto.CPF, nil)
 	if err == ErrEmailAlreadyExists || err == ErrPhoneAlreadyExists || err == ErrCPFAlreadyExists {
 		return err
 	}
@@ -48,18 +49,48 @@ func (ss *StudentService) CreateStudent(student dtos.SaveStudentDTO) error {
 	}
 
 	err = ss.repository.CreateStudent(
-		student.Name,
-		student.Email,
-		student.Phone,
-		student.CPF,
-		student.Gender,
-		student.Headquarters,
-		student.Birthday,
+		studentDto.Name,
+		studentDto.Email,
+		studentDto.Phone,
+		studentDto.CPF,
+		studentDto.Gender,
+		studentDto.Headquarters,
+		studentDto.Birthday,
 	)
 
 	if err != nil {
 		ss.logger.Error(ErrCreateStudent.Error(), err)
 		return ErrCreateStudent
+	}
+
+	return nil
+}
+
+func (ss *StudentService) UpdateStudent(studentDto dtos.SaveStudentDTO, id string) error {
+	student, err := ss.repository.GetStudentByID(id)
+	if student == nil || err != nil {
+		return ErrStudentNotFound
+	}
+
+	err = ss.repository.ValidateStudentData(studentDto.Email, studentDto.Phone, studentDto.CPF, &id)
+	if err == ErrEmailAlreadyExists || err == ErrPhoneAlreadyExists || err == ErrCPFAlreadyExists {
+		return err
+	}
+
+	err = ss.repository.UpdateStudent(
+		id,
+		studentDto.Name,
+		studentDto.Email,
+		studentDto.Phone,
+		studentDto.CPF,
+		studentDto.Gender,
+		studentDto.Headquarters,
+		studentDto.Birthday,
+	)
+
+	if err != nil {
+		ss.logger.Error(ErrUpdateStudent.Error(), err)
+		return ErrUpdateStudent
 	}
 
 	return nil

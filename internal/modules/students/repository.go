@@ -1,7 +1,9 @@
 package students
 
 import (
+	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/claytonCharles/nexus-fight/internal/database"
@@ -60,9 +62,43 @@ func (sr *StudentRepository) ListStudents() ([]models.Student, error) {
 	return students, nil
 }
 
-func (sr *StudentRepository) ValidateStudentData(email *string, phone *string, cpf *string) error {
+func (sr *StudentRepository) GetStudentByID(id string) (*models.Student, error) {
+	var student models.Student
+	query := "SELECT * FROM tb_students WHERE id = ? LIMIT 1"
+	err := sr.db.Conn.QueryRow(query, id).Scan(
+		&student.ID,
+		&student.Name,
+		&student.Email,
+		&student.Phone,
+		&student.CPF,
+		&student.Gender,
+		&student.Headquarters,
+		&student.Birthday,
+		&student.Active,
+		&student.CreatedAt,
+		&student.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return &student, nil
+}
+
+func (sr *StudentRepository) ValidateStudentData(email *string, phone *string, cpf *string, id *string) error {
+	baseQuery := "SELECT EXISTS(SELECT 1 FROM tb_students WHERE %s = ?)"
+	if id != nil {
+		baseQuery = "SELECT EXISTS(SELECT 1 FROM tb_students WHERE %s = ? AND id != ?)"
+	}
+
+	var exists bool
 	if email != nil {
-		exists, err := sr.exists("SELECT EXISTS(SELECT 1 FROM tb_students WHERE email = ?)", *email)
+		err := sr.db.Conn.QueryRow(fmt.Sprintf(baseQuery, "email"), *email, id).Scan(&exists)
 		if err != nil {
 			return err
 		}
@@ -73,7 +109,7 @@ func (sr *StudentRepository) ValidateStudentData(email *string, phone *string, c
 	}
 
 	if phone != nil {
-		exists, err := sr.exists("SELECT EXISTS(SELECT 1 FROM tb_students WHERE phone = ?)", *phone)
+		err := sr.db.Conn.QueryRow(fmt.Sprintf(baseQuery, "phone"), *phone, id).Scan(&exists)
 		if err != nil {
 			return err
 		}
@@ -84,7 +120,7 @@ func (sr *StudentRepository) ValidateStudentData(email *string, phone *string, c
 	}
 
 	if cpf != nil {
-		exists, err := sr.exists("SELECT EXISTS(SELECT 1 FROM tb_students WHERE cpf = ?)", *cpf)
+		err := sr.db.Conn.QueryRow(fmt.Sprintf(baseQuery, "cpf"), *cpf, id).Scan(&exists)
 		if err != nil {
 			return err
 		}
@@ -121,13 +157,33 @@ func (sr *StudentRepository) CreateStudent(
 	return nil
 }
 
-func (sr *StudentRepository) exists(query string, value string) (bool, error) {
-	var exists bool
+func (sr *StudentRepository) UpdateStudent(
+	uuid string,
+	name string,
+	email *string,
+	phone *string,
+	cpf *string,
+	gender string,
+	headquarters string,
+	birthday *time.Time,
+) error {
+	query := `
+		UPDATE tb_students SET
+			name = ?,
+			email = ?,
+			phone = ?,
+			cpf = ?,
+			gender = ?,
+			headquarters = ?,
+			birthday = ?,
+			updated_at = ?
+		WHERE id = ?
+	`
 
-	err := sr.db.Conn.QueryRow(query, value).Scan(&exists)
+	_, err := sr.db.Conn.Exec(query, name, email, phone, cpf, gender, headquarters, birthday, time.Now(), uuid)
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	return exists, nil
+	return nil
 }
