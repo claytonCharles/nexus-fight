@@ -28,14 +28,20 @@ func NewService(repo *StudentRepository, log *logger.Logger) *StudentService {
 	}
 }
 
-func (ss *StudentService) ListStudents() ([]models.Student, error) {
-	students, err := ss.repository.ListStudents()
+func (ss *StudentService) ListStudents(page int) (*dtos.ListStudents, error) {
+	perPage := 10
+	students, total, err := ss.repository.ListStudents(page, perPage)
 	if err != nil {
 		ss.logger.Error("Fail on list students", err)
 		return nil, err
 	}
 
-	return students, nil
+	return &dtos.ListStudents{
+		Students: students,
+		Page:     page,
+		PerPage:  perPage,
+		Total:    total,
+	}, nil
 }
 
 func (ss *StudentService) GetStudent(id string) (*models.Student, error) {

@@ -1,6 +1,7 @@
 package students
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/claytonCharles/nexus-fight/internal/database"
@@ -21,7 +22,14 @@ func NewHandler(db *database.DB, log *logger.Logger) *Handler {
 }
 
 func (h *Handler) ListStudents(hc *nexus.HttpContext) {
-	students, err := h.service.ListStudents()
+	params := hc.Params()
+
+	page, err := strconv.Atoi(params.Get("page"))
+	if err != nil {
+		page = 1
+	}
+
+	students, err := h.service.ListStudents(page)
 	if err != nil {
 		hc.InternalError()
 		return

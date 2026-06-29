@@ -28,14 +28,23 @@ func NewRepository(db *database.DB, log *logger.Logger) *StudentRepository {
 	}
 }
 
-func (sr *StudentRepository) ListStudents() ([]models.Student, error) {
-	query := `SELECT * FROM tb_students WHERE active = 1`
+func (sr *StudentRepository) ListStudents(page int, perPage int) ([]models.Student, int, error) {
+	limit := page * perPage
+	offset := (page - 1) * perPage
+	query := `SELECT * FROM tb_students WHERE active = 1 LIMIT ? OFFSET ?`
+	queryCount := `SELECT COUNT(id) as total FROM tb_students WHERE active = 1`
 
-	rows, err := sr.db.Conn.Query(query)
+	rows, err := sr.db.Conn.Query(query, limit, offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
+
+	var total int
+	err = sr.db.Conn.QueryRow(queryCount).Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
 
 	var students []models.Student
 	for rows.Next() {
@@ -53,13 +62,13 @@ func (sr *StudentRepository) ListStudents() ([]models.Student, error) {
 			&student.CreatedAt,
 			&student.UpdatedAt,
 		); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		students = append(students, student)
 	}
 
-	return students, nil
+	return students, total, nil
 }
 
 func (sr *StudentRepository) GetStudentByID(id string) (*models.Student, error) {
