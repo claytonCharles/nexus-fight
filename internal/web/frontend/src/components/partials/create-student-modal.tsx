@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { createStudent, updateStudent } from "@/services/students";
 import type { CreateStudentDTO, Student } from "@/types/students";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Modal } from "@/components/ui/modal";
 
 type Props = {
   open: boolean;
@@ -97,175 +101,148 @@ export default function CreateStudentModal({ open, onClose, onSuccess, studentTo
     }
   };
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-2xl rounded-lg bg-white shadow-xl">
-        <div className="border-b px-6 py-4">
-          <h2 className="text-xl font-semibold">
-            {studentToEdit ? "Editar aluno" : "Adicionar aluno"}
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 p-6">
-          <div className="col-span-2">
-            <label className="mb-1 block text-sm font-medium">
-              Nome *
-            </label>
-
-            <input
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              className="w-full rounded border p-2"
-            />
-
-            {errors.name?.map((error) => (
-              <p key={error} className="text-sm text-red-500">
-                {error}
-              </p>
-            ))}
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Email
-            </label>
-
-            <input
-              name="email"
-              type="email"
-              value={form.email ?? ""}
-              onChange={handleChange}
-              className="w-full rounded border p-2"
-            />
-
-            {errors.email?.map((error) => (
-              <p key={error} className="text-sm text-red-500">
-                {error}
-              </p>
-            ))}
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Telefone
-            </label>
-
-            <input
-              name="phone"
-              value={form.phone ?? ""}
-              onChange={handleChange}
-              className="w-full rounded border p-2"
-            />
-
-            {errors.phone?.map((error) => (
-              <p key={error} className="text-sm text-red-500">
-                {error}
-              </p>
-            ))}
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              CPF
-            </label>
-
-            <input
-              name="cpf"
-              value={form.cpf ?? ""}
-              onChange={handleChange}
-              className="w-full rounded border p-2"
-            />
-
-            {errors.cpf?.map((error) => (
-              <p key={error} className="text-sm text-red-500">
-                {error}
-              </p>
-            ))}
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Sexo *
-            </label>
-
-            <select
-              name="gender"
-              value={form.gender}
-              onChange={handleChange}
-              className="w-full rounded border p-2"
-            >
-              <option value="M">Masculino</option>
-              <option value="F">Feminino</option>
-            </select>
-
-            {errors.gender?.map((error) => (
-              <p key={error} className="text-sm text-red-500">
-                {error}
-              </p>
-            ))}
-          </div>
-
-          <div className="col-span-2">
-            <label className="mb-1 block text-sm font-medium">
-              Órgão *
-            </label>
-
-            <input
-              name="headquarters"
-              value={form.headquarters}
-              onChange={handleChange}
-              className="w-full rounded border p-2"
-            />
-
-            {errors.headquarters?.map((error) => (
-              <p key={error} className="text-sm text-red-500">
-                {error}
-              </p>
-            ))}
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Aniversário *
-            </label>
-
-            <input
-              name="birthday"
-              type="date"
-              value={form.birthday}
-              onChange={handleChange}
-              className="w-full rounded border p-2"
-            />
-
-            {errors.birthday?.map((error) => (
-              <p key={error} className="text-sm text-red-500">
-                {error}
-              </p>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-2 border-t px-6 py-4">
-          <button
-            onClick={onClose}
-            disabled={loading}
-            className="rounded border px-4 py-2 hover:bg-gray-100"
-          >
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={studentToEdit ? "Editar aluno" : "Adicionar aluno"}
+      description="Cadastre ou atualize as informações do aluno de forma rápida."
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose} disabled={loading}>
             Cancelar
-          </button>
-
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-          >
+          </Button>
+          <Button onClick={handleSubmit} disabled={loading}>
             {loading ? (studentToEdit ? "Atualizando..." : "Salvando...") : studentToEdit ? "Atualizar" : "Salvar"}
-          </button>
+          </Button>
+        </>
+      }
+    >
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="md:col-span-2">
+          <Label required>Nome</Label>
+
+          <Input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            error={Boolean(errors.name)}
+          />
+
+          {errors.name?.map((error) => (
+            <p key={error} className="mt-1 text-sm text-red-500">
+              {error}
+            </p>
+          ))}
+        </div>
+
+        <div>
+          <Label>Email</Label>
+
+          <Input
+            name="email"
+            type="email"
+            value={form.email ?? ""}
+            onChange={handleChange}
+            error={Boolean(errors.email)}
+          />
+
+          {errors.email?.map((error) => (
+            <p key={error} className="mt-1 text-sm text-red-500">
+              {error}
+            </p>
+          ))}
+        </div>
+
+        <div>
+          <Label>Telefone</Label>
+
+          <Input
+            name="phone"
+            value={form.phone ?? ""}
+            onChange={handleChange}
+            error={Boolean(errors.phone)}
+          />
+
+          {errors.phone?.map((error) => (
+            <p key={error} className="mt-1 text-sm text-red-500">
+              {error}
+            </p>
+          ))}
+        </div>
+
+        <div>
+          <Label>CPF</Label>
+
+          <Input
+            name="cpf"
+            value={form.cpf ?? ""}
+            onChange={handleChange}
+            error={Boolean(errors.cpf)}
+          />
+
+          {errors.cpf?.map((error) => (
+            <p key={error} className="mt-1 text-sm text-red-500">
+              {error}
+            </p>
+          ))}
+        </div>
+
+        <div>
+          <Label required>Sexo</Label>
+
+          <select
+            name="gender"
+            value={form.gender}
+            onChange={handleChange}
+            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm shadow-sm outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
+          >
+            <option value="M">Masculino</option>
+            <option value="F">Feminino</option>
+          </select>
+
+          {errors.gender?.map((error) => (
+            <p key={error} className="mt-1 text-sm text-red-500">
+              {error}
+            </p>
+          ))}
+        </div>
+
+        <div className="md:col-span-2">
+          <Label required>Órgão</Label>
+
+          <Input
+            name="headquarters"
+            value={form.headquarters}
+            onChange={handleChange}
+            error={Boolean(errors.headquarters)}
+          />
+
+          {errors.headquarters?.map((error) => (
+            <p key={error} className="mt-1 text-sm text-red-500">
+              {error}
+            </p>
+          ))}
+        </div>
+
+        <div>
+          <Label required>Aniversário</Label>
+
+          <Input
+            name="birthday"
+            type="date"
+            value={form.birthday}
+            onChange={handleChange}
+            error={Boolean(errors.birthday)}
+          />
+
+          {errors.birthday?.map((error) => (
+            <p key={error} className="mt-1 text-sm text-red-500">
+              {error}
+            </p>
+          ))}
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

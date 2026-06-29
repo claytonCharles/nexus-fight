@@ -4,6 +4,10 @@ import { listStudents } from "@/services/students";
 import type { Student } from "@/types/students";
 import CreateStudentModal from "@/components/partials/create-student-modal";
 import Pagination from "@/components/partials/pagination";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { Input } from "@/components/ui/input";
 
 export default function Students() {
   const location = useLocation();
@@ -17,6 +21,7 @@ export default function Students() {
   const [totalPages, setTotalPages] = useState(1);
   const [isSwitchingPage, setIsSwitchingPage] = useState(false);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [search, setSearch] = useState("");
 
   const updatePageInUrl = (page: number) => {
     const searchParams = new URLSearchParams(location.search);
@@ -27,6 +32,20 @@ export default function Students() {
     }
 
     searchParams.set("page", String(page));
+
+    navigate({ pathname: location.pathname, search: searchParams.toString() ? `?${searchParams.toString()}` : "" }, { replace: true });
+  };
+
+  const updateSearchInUrl = (value: string) => {
+    const searchParams = new URLSearchParams(location.search);
+
+    if (value.trim()) {
+      searchParams.set("search", value.trim());
+    } else {
+      searchParams.delete("search");
+    }
+
+    searchParams.set("page", "1");
 
     navigate({ pathname: location.pathname, search: searchParams.toString() ? `?${searchParams.toString()}` : "" }, { replace: true });
   };
@@ -43,7 +62,7 @@ export default function Students() {
         setIsSwitchingPage(true);
       }
 
-      const data = await listStudents(page);
+      const data = await listStudents(page, search);
       setStudents(data.list_student);
       setCurrentPage(data.page);
       setTotalPages(Math.max(1, Math.ceil(data.total / data.per_page)));
@@ -60,8 +79,10 @@ export default function Students() {
     const params = new URLSearchParams(location.search);
     const pageFromUrl = Number(params.get("page") || "1");
     const safePage = Number.isNaN(pageFromUrl) || pageFromUrl < 1 ? 1 : pageFromUrl;
+    const searchFromUrl = params.get("search") || "";
 
     setCurrentPage(safePage);
+    setSearch(searchFromUrl);
     fetchStudents(safePage);
   }, [location.search]);
 
@@ -85,29 +106,37 @@ export default function Students() {
       />
 
       <section className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-bold">
-              Alunos
-            </h2>
-
-            <p className="text-slate-500">
-              Lista de alunos cadastrados.
-            </p>
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <Breadcrumb items={[{ label: "Dashboard", to: "/" }, { label: "Alunos" }]} />
+          <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="text-3xl font-semibold text-slate-900">Alunos</h2>
+              <p className="mt-1 text-slate-500">Lista de alunos cadastrados e em acompanhamento.</p>
+            </div>
           </div>
-
-          <button
-            onClick={openCreateModal}
-            className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-          >
-            Adicionar aluno
-          </button>
         </div>
 
         <div className="flex justify-center">
-          <div className="w-full max-w-6xl rounded-lg border bg-white shadow">
+          <Card className="w-full max-w-6xl overflow-hidden">
+            <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-50/80 p-4 md:flex-row md:items-center md:justify-between">
+              <div className="w-full md:max-w-sm">
+                <Input
+                  placeholder="Busca por nome, email, telefone ou cpf."
+                  value={search}
+                  onChange={(event) => {
+                    setSearch(event.target.value);
+                    updateSearchInUrl(event.target.value);
+                  }}
+                />
+              </div>
+
+              <Button onClick={openCreateModal} variant="primary">
+                Adicionar aluno
+              </Button>
+            </div>
+
             <table className="w-full border-collapse">
-              <thead className="border-b bg-slate-50">
+              <thead className="border-b border-slate-200 bg-slate-50/80">
                 <tr>
                   <th className="px-4 py-3 text-left">Nome</th>
                   <th className="px-4 py-3 text-left">Email</th>
@@ -156,7 +185,7 @@ export default function Students() {
                   students.map((student) => (
                     <tr
                       key={student.id}
-                      className="border-b hover:bg-slate-50"
+                      className="border-b border-slate-200 hover:bg-slate-50/70"
                     >
                       <td className="px-4 py-3">{student.name}</td>
                       <td className="px-4 py-3">{student.email ?? "-"}</td>
@@ -170,7 +199,7 @@ export default function Students() {
                       <td className="px-4 py-3">
                         <Link
                           to={`/students/${student.id}`}
-                          className="rounded border border-slate-600 px-3 py-1 text-sm text-slate-700 hover:bg-slate-50"
+                          className="rounded-full border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:border-amber-500 hover:bg-amber-50 hover:text-amber-700"
                         >
                           Ver detalhes
                         </Link>
@@ -186,7 +215,7 @@ export default function Students() {
               totalPages={totalPages}
               onPageChange={(page) => updatePageInUrl(page)}
             />
-          </div>
+          </Card>
         </div>
       </section>
     </>
