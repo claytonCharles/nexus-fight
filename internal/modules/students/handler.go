@@ -85,3 +85,19 @@ func (h *Handler) UpdateStudent(hc *nexus.HttpContext) {
 
 	hc.ResponseJson("Updated student successfully!", 200)
 }
+
+func (h *Handler) DeactivateStudent(hc *nexus.HttpContext) {
+	id := hc.Params().Get("id")
+	if strings.TrimSpace(id) == "" {
+		hc.ResponseJson("ID Student is needed!", 400)
+		return
+	}
+
+	err := h.service.DeactivateStudent(id)
+	if err != nil {
+		hc.ResponseJson(err.Error(), 400)
+		return
+	}
+
+	hc.ResponseJson("Deleted student successfully!", 200)
+}

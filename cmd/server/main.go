@@ -36,6 +36,7 @@ func main() {
 	app.GET("/api/student/show", hs.ShowStudent)
 	app.POST("/api/student/create", hs.CreateStudent)
 	app.POST("/api/student/update", hs.UpdateStudent)
+	app.DELETE("/api/student/delete", hs.DeactivateStudent)
 	app.Handler("/", web.SpaHandler())
 
 	fmt.Printf("Server on http://0.0.0.0:8001\n")

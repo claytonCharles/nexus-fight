@@ -64,7 +64,7 @@ func (sr *StudentRepository) ListStudents() ([]models.Student, error) {
 
 func (sr *StudentRepository) GetStudentByID(id string) (*models.Student, error) {
 	var student models.Student
-	query := "SELECT * FROM tb_students WHERE id = ? LIMIT 1"
+	query := "SELECT * FROM tb_students WHERE id = ? AND active = 1 LIMIT 1"
 	err := sr.db.Conn.QueryRow(query, id).Scan(
 		&student.ID,
 		&student.Name,
@@ -181,6 +181,15 @@ func (sr *StudentRepository) UpdateStudent(
 	`
 
 	_, err := sr.db.Conn.Exec(query, name, email, phone, cpf, gender, headquarters, birthday, time.Now(), uuid)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (sr *StudentRepository) DeactivateStudent(uuid string) error {
+	_, err := sr.db.Conn.Exec("UPDATE tb_students SET active = 0 WHERE id = ?", uuid)
 	if err != nil {
 		return err
 	}

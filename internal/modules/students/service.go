@@ -18,6 +18,7 @@ var (
 	ErrCreateStudent   = errors.New("Error on create a new student!")
 	ErrStudentNotFound = errors.New("Student is not found!")
 	ErrUpdateStudent   = errors.New("Updated student information unsuccessfully!")
+	ErrDeleteStudent   = errors.New("Delete student unsuccessfully!")
 )
 
 func NewService(repo *StudentRepository, log *logger.Logger) *StudentService {
@@ -42,6 +43,11 @@ func (ss *StudentService) GetStudent(id string) (*models.Student, error) {
 	if err != nil {
 		ss.logger.Error(ErrRetriveData.Error(), err)
 		return nil, ErrRetriveData
+	}
+
+	if student == nil {
+		ss.logger.Error(ErrStudentNotFound.Error(), err)
+		return nil, ErrStudentNotFound
 	}
 
 	return student, nil
@@ -79,6 +85,7 @@ func (ss *StudentService) CreateStudent(studentDto dtos.SaveStudentDTO) error {
 func (ss *StudentService) UpdateStudent(studentDto dtos.SaveStudentDTO, id string) error {
 	student, err := ss.repository.GetStudentByID(id)
 	if student == nil || err != nil {
+		ss.logger.Error(ErrStudentNotFound.Error(), err)
 		return ErrStudentNotFound
 	}
 
@@ -101,6 +108,22 @@ func (ss *StudentService) UpdateStudent(studentDto dtos.SaveStudentDTO, id strin
 	if err != nil {
 		ss.logger.Error(ErrUpdateStudent.Error(), err)
 		return ErrUpdateStudent
+	}
+
+	return nil
+}
+
+func (ss *StudentService) DeactivateStudent(id string) error {
+	student, err := ss.repository.GetStudentByID(id)
+	if student == nil || err != nil {
+		ss.logger.Error(ErrStudentNotFound.Error(), err)
+		return ErrStudentNotFound
+	}
+
+	err = ss.repository.DeactivateStudent(id)
+	if err != nil {
+		ss.logger.Error(ErrDeleteStudent.Error(), err)
+		return ErrDeleteStudent
 	}
 
 	return nil
