@@ -30,6 +30,22 @@ func (h *Handler) ListStudents(hc *nexus.HttpContext) {
 	hc.ResponseJson(students, 200)
 }
 
+func (h *Handler) ShowStudent(hc *nexus.HttpContext) {
+	id := hc.Params().Get("id")
+	if strings.TrimSpace(id) == "" {
+		hc.ResponseJson("ID Student is needed!", 400)
+		return
+	}
+
+	student, err := h.service.GetStudent(id)
+	if err != nil {
+		hc.ResponseJson(err.Error(), 400)
+		return
+	}
+
+	hc.ResponseJson(student, 200)
+}
+
 func (h *Handler) CreateStudent(hc *nexus.HttpContext) {
 	var studentDto dtos.SaveStudentDTO
 	if err := hc.ValidateJson(&studentDto); len(err) >= 1 {
@@ -44,7 +60,7 @@ func (h *Handler) CreateStudent(hc *nexus.HttpContext) {
 		return
 	}
 
-	hc.ResponseJson("New Student created successfully!", 200)
+	hc.ResponseJson("New Student created successfully!", 201)
 }
 
 func (h *Handler) UpdateStudent(hc *nexus.HttpContext) {

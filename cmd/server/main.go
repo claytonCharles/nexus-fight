@@ -33,6 +33,7 @@ func main() {
 	hs := students.NewHandler(db, app.Logger)
 
 	app.GET("/api/student/list", hs.ListStudents)
+	app.GET("/api/student/show", hs.ShowStudent)
 	app.POST("/api/student/create", hs.CreateStudent)
 	app.POST("/api/student/update", hs.UpdateStudent)
 	app.Handler("/", web.SpaHandler())

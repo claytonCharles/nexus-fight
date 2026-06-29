@@ -14,7 +14,7 @@ type StudentService struct {
 }
 
 var (
-	ErrDuplicatedData  = errors.New("Some information (email, phone, or CPF) is duplicated.")
+	ErrRetriveData     = errors.New("Failed to retrieve student information.")
 	ErrCreateStudent   = errors.New("Error on create a new student!")
 	ErrStudentNotFound = errors.New("Student is not found!")
 	ErrUpdateStudent   = errors.New("Updated student information unsuccessfully!")
@@ -35,6 +35,16 @@ func (ss *StudentService) ListStudents() ([]models.Student, error) {
 	}
 
 	return students, nil
+}
+
+func (ss *StudentService) GetStudent(id string) (*models.Student, error) {
+	student, err := ss.repository.GetStudentByID(id)
+	if err != nil {
+		ss.logger.Error(ErrRetriveData.Error(), err)
+		return nil, ErrRetriveData
+	}
+
+	return student, nil
 }
 
 func (ss *StudentService) CreateStudent(studentDto dtos.SaveStudentDTO) error {
