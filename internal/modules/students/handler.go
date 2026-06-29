@@ -24,12 +24,13 @@ func NewHandler(db *database.DB, log *logger.Logger) *Handler {
 func (h *Handler) ListStudents(hc *nexus.HttpContext) {
 	params := hc.Params()
 
+	search := params.Get("search")
 	page, err := strconv.Atoi(params.Get("page"))
 	if err != nil {
 		page = 1
 	}
 
-	students, err := h.service.ListStudents(page)
+	students, err := h.service.ListStudents(search, page)
 	if err != nil {
 		hc.InternalError()
 		return

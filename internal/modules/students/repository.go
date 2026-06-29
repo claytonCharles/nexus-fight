@@ -28,24 +28,36 @@ func NewRepository(db *database.DB, log *logger.Logger) *StudentRepository {
 	}
 }
 
-func (sr *StudentRepository) ListStudents(page int, perPage int) ([]models.Student, int, error) {
+func (sr *StudentRepository) ListStudents(search string, page int, perPage int) ([]models.Student, int, error) {
+	args := []any{}
+	studentEmpty := make([]models.Student, 0)
 	offset := (page - 1) * perPage
-	query := `SELECT * FROM tb_students WHERE active = 1 LIMIT ? OFFSET ?`
+	query := `SELECT * FROM tb_students WHERE active = 1`
 	queryCount := `SELECT COUNT(id) as total FROM tb_students WHERE active = 1`
 
-	rows, err := sr.db.Conn.Query(query, perPage, offset)
+	if search != "" {
+		filter := ` AND (name LIKE ? OR email LIKE ? OR phone LIKE ? OR cpf LIKE ?)`
+		query += filter
+		queryCount += filter
+		search = "%" + search + "%"
+		args = append(args, search, search, search, search)
+	}
+
+	var total int
+	err := sr.db.Conn.QueryRow(queryCount, args...).Scan(&total)
 	if err != nil {
-		return nil, 0, err
+		return studentEmpty, 0, err
+	}
+
+	query += " ORDER BY name ASC LIMIT ? OFFSET ?"
+	args = append(args, perPage, offset)
+	rows, err := sr.db.Conn.Query(query, args...)
+	if err != nil {
+		return studentEmpty, 0, err
 	}
 	defer rows.Close()
 
-	var total int
-	err = sr.db.Conn.QueryRow(queryCount).Scan(&total)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	var students []models.Student
+	students := make([]models.Student, 0)
 	for rows.Next() {
 		var student models.Student
 		if err := rows.Scan(
@@ -61,10 +73,14 @@ func (sr *StudentRepository) ListStudents(page int, perPage int) ([]models.Stude
 			&student.CreatedAt,
 			&student.UpdatedAt,
 		); err != nil {
-			return nil, 0, err
+			return studentEmpty, 0, err
 		}
 
 		students = append(students, student)
+	}
+
+	if err := rows.Err(); err != nil {
+		return studentEmpty, 0, err
 	}
 
 	return students, total, nil

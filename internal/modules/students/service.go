@@ -2,6 +2,7 @@ package students
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/claytonCharles/nexus-fight/internal/modules/students/dtos"
 	"github.com/claytonCharles/nexus-fight/internal/modules/students/models"
@@ -28,9 +29,11 @@ func NewService(repo *StudentRepository, log *logger.Logger) *StudentService {
 	}
 }
 
-func (ss *StudentService) ListStudents(page int) (*dtos.ListStudents, error) {
+func (ss *StudentService) ListStudents(search string, page int) (*dtos.ListStudents, error) {
 	perPage := 10
-	students, total, err := ss.repository.ListStudents(page, perPage)
+	search = strings.TrimSpace(search)
+	search = strings.Join(strings.Fields(search), " ")
+	students, total, err := ss.repository.ListStudents(search, page, perPage)
 	if err != nil {
 		ss.logger.Error("Fail on list students", err)
 		return nil, err
