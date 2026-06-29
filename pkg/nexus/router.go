@@ -39,6 +39,10 @@ func (r *Router) Resolve(path string, method string, handler HandlerFunc, middle
 	})
 }
 
+func (r *Router) Handler(path string, h http.Handler) {
+	r.mux.Handle(path, h)
+}
+
 func (r *Router) chain(hf HandlerFunc, hm ...Middleware) HandlerFunc {
 	middlewares := r.middlewares
 	if len(hm) >= 1 {

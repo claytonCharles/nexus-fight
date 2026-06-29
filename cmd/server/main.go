@@ -7,6 +7,7 @@ import (
 
 	"github.com/claytonCharles/nexus-fight/internal/database"
 	"github.com/claytonCharles/nexus-fight/internal/modules/students"
+	"github.com/claytonCharles/nexus-fight/internal/web"
 	"github.com/claytonCharles/nexus-fight/pkg/nexus"
 	middlewares "github.com/claytonCharles/nexus-fight/pkg/nexus/middleware"
 )
@@ -31,17 +32,9 @@ func main() {
 
 	hs := students.NewHandler(db, app.Logger)
 
-	app.GET("/student/list", hs.ListStudents)
-	app.POST("/student/create", hs.CreateStudent)
-
-	app.GET("/", func(hc *nexus.HttpContext) {
-		hc.ResponseJson("Hello World!", 200)
-	})
-
-	app.GET("/panic", func(hc *nexus.HttpContext) {
-		app.Logger.Error("Logger Recover test")
-		panic("Recover test")
-	})
+	app.GET("/api/student/list", hs.ListStudents)
+	app.POST("/api/student/create", hs.CreateStudent)
+	app.Handler("/", web.SpaHandler())
 
 	fmt.Printf("Server on http://0.0.0.0:8001\n")
 	err = http.ListenAndServe(":8001", app)

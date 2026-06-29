@@ -40,6 +40,10 @@ func (nx *Nexus) POST(path string, handler HandlerFunc, middlewares ...Middlewar
 	nx.router.Resolve(path, http.MethodPost, handler, middlewares...)
 }
 
+func (nx *Nexus) Handler(path string, handler http.Handler) {
+	nx.router.Handler(path, handler)
+}
+
 func (nx *Nexus) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	nx.router.ServeHTTP(writer, request)
 }
