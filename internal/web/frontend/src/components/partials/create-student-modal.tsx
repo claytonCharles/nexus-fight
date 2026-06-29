@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
-import { createStudent } from "@/services/students";
-import type { CreateStudentDTO } from "@/types/students";
+import { createStudent, updateStudent } from "@/services/students";
+import type { CreateStudentDTO, Student } from "@/types/students";
 
 type Props = {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
-}
+  studentToEdit?: Student | null;
+};
 
-export default function CreateStudentModal({ open, onClose, onSuccess }: Props) {
-  const [form, setForm] = useState<CreateStudentDTO>({
+function createEmptyForm(): CreateStudentDTO {
+  return {
     name: "",
     email: "",
     phone: "",
@@ -17,17 +18,47 @@ export default function CreateStudentModal({ open, onClose, onSuccess }: Props) 
     gender: "M",
     headquarters: "",
     birthday: "",
-  });
+  };
+}
+
+function formatBirthday(value: string): string {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toISOString().slice(0, 10);
+}
+
+export default function CreateStudentModal({ open, onClose, onSuccess, studentToEdit }: Props) {
+  const [form, setForm] = useState<CreateStudentDTO>(createEmptyForm);
 
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (open) {
-      setForm(form);
+      if (studentToEdit) {
+        setForm({
+          name: studentToEdit.name ?? "",
+          email: studentToEdit.email ?? "",
+          phone: studentToEdit.phone ?? "",
+          cpf: studentToEdit.cpf ?? "",
+          gender: studentToEdit.gender === "F" ? "F" : "M",
+          headquarters: studentToEdit.headquarters ?? "",
+          birthday: formatBirthday(studentToEdit.birthday),
+        });
+      } else {
+        setForm(createEmptyForm());
+      }
+
       setErrors({});
     }
-  }, [open]);
+  }, [open, studentToEdit]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm((prev) => ({
@@ -46,7 +77,11 @@ export default function CreateStudentModal({ open, onClose, onSuccess }: Props) 
         birthday: new Date(form.birthday).toISOString(),
       };
 
-      await createStudent(payload);
+      if (studentToEdit) {
+        await updateStudent(studentToEdit.id, payload);
+      } else {
+        await createStudent(payload);
+      }
 
       onSuccess();
       onClose();
@@ -56,7 +91,7 @@ export default function CreateStudentModal({ open, onClose, onSuccess }: Props) 
         return;
       }
 
-      alert("Erro ao salvar aluno.");
+      alert(studentToEdit ? "Erro ao atualizar aluno." : "Erro ao salvar aluno.");
     } finally {
       setLoading(false);
     }
@@ -69,12 +104,11 @@ export default function CreateStudentModal({ open, onClose, onSuccess }: Props) 
       <div className="w-full max-w-2xl rounded-lg bg-white shadow-xl">
         <div className="border-b px-6 py-4">
           <h2 className="text-xl font-semibold">
-            Adicionar aluno
+            {studentToEdit ? "Editar aluno" : "Adicionar aluno"}
           </h2>
         </div>
 
         <div className="grid grid-cols-2 gap-4 p-6">
-
           <div className="col-span-2">
             <label className="mb-1 block text-sm font-medium">
               Nome *
@@ -212,7 +246,6 @@ export default function CreateStudentModal({ open, onClose, onSuccess }: Props) 
               </p>
             ))}
           </div>
-
         </div>
 
         <div className="flex justify-end gap-2 border-t px-6 py-4">
@@ -229,7 +262,7 @@ export default function CreateStudentModal({ open, onClose, onSuccess }: Props) 
             disabled={loading}
             className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? "Salvando..." : "Salvar"}
+            {loading ? (studentToEdit ? "Atualizando..." : "Salvando...") : studentToEdit ? "Atualizar" : "Salvar"}
           </button>
         </div>
       </div>
