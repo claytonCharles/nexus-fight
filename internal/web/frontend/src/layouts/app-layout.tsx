@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router";
-import { ChevronLeft, ChevronRight, Home, Menu, PanelLeft, Users, X } from "lucide-react";
+import { Home, PanelLeft, Users, X } from "lucide-react";
 import { useState } from "react";
 
 const navItems = [
