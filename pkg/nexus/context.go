@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -22,6 +23,10 @@ func NewContext(writer http.ResponseWriter, req *http.Request) *HttpContext {
 		Writer:  writer,
 		Request: req,
 	}
+}
+
+func (hc *HttpContext) Params() url.Values {
+	return hc.Request.URL.Query()
 }
 
 func (hc *HttpContext) ResponseJson(data any, status int) {
@@ -89,12 +94,17 @@ func (hc *HttpContext) validRules(key string, value string, rules string, errors
 		case strings.HasPrefix(rule, "min="):
 			min, _ := strconv.Atoi(strings.TrimPrefix(rule, "min="))
 			if len(value) < min {
-				errors[key] = append(errors[key], fmt.Sprintf("Field needed a min %d characters.", min))
+				errors[key] = append(errors[key], fmt.Sprintf("Minimum length is %d characters.", min))
 			}
 		case strings.HasPrefix(rule, "max="):
 			max, _ := strconv.Atoi(strings.TrimPrefix(rule, "max="))
 			if len(value) > max {
-				errors[key] = append(errors[key], fmt.Sprintf("Field can have at most %d characters.", max))
+				errors[key] = append(errors[key], fmt.Sprintf("Maximum length is %d characters.", max))
+			}
+		case strings.HasPrefix(rule, "len="):
+			length, _ := strconv.Atoi(strings.TrimPrefix(rule, "len="))
+			if len(value) != length {
+				errors[key] = append(errors[key], fmt.Sprintf("The value must be exactly %d characters long.", length))
 			}
 		}
 	}
