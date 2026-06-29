@@ -29,12 +29,11 @@ func NewRepository(db *database.DB, log *logger.Logger) *StudentRepository {
 }
 
 func (sr *StudentRepository) ListStudents(page int, perPage int) ([]models.Student, int, error) {
-	limit := page * perPage
 	offset := (page - 1) * perPage
 	query := `SELECT * FROM tb_students WHERE active = 1 LIMIT ? OFFSET ?`
 	queryCount := `SELECT COUNT(id) as total FROM tb_students WHERE active = 1`
 
-	rows, err := sr.db.Conn.Query(query, limit, offset)
+	rows, err := sr.db.Conn.Query(query, perPage, offset)
 	if err != nil {
 		return nil, 0, err
 	}
