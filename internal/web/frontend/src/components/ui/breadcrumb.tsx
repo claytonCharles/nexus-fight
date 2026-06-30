@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 
-type BreadcrumbItem = {
+export type BreadcrumbItem = {
   label: string;
   to?: string;
 };

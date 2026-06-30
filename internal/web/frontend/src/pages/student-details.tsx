@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { deactivateStudent, getStudent } from "@/services/students";
 import { listBioimpedances } from "@/services/bioimpedance";
@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import useSafeBack from "@/hooks/use-back-safe";
 import { ArrowLeftIcon } from "lucide-react";
+import { BreadcrumbContext } from "@/contexts/breadcrumb";
 
 export default function StudentDetails() {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +27,12 @@ export default function StudentDetails() {
   const [bioimpedances, setBioimpedances] = useState<Bioimpedance[]>([]);
   const [bioLoading, setBioLoading] = useState(true);
   const [selectedBio, setSelectedBio] = useState<Bioimpedance | null>(null);
+  const breadcrumb = useContext(BreadcrumbContext);
+  breadcrumb?.setBreadcrumb([
+    { label: "Dashboard", to: "/" },
+    { label: "Alunos", to: "/students" },
+    { label: student?.name ?? "Aluno" }
+  ]);
 
   const formatDate = useCallback((value?: string | Date | null) => {
     if (!value) return "-";

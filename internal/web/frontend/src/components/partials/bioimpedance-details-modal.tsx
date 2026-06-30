@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import type { Bioimpedance } from "@/types/bioimpedance";
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { listStudents } from "@/services/students";
 import type { Student } from "@/types/students";
@@ -6,8 +6,9 @@ import CreateStudentModal from "@/components/partials/create-student-modal";
 import Pagination from "@/components/partials/pagination";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Input } from "@/components/ui/input";
+import { BreadcrumbContext } from "@/contexts/breadcrumb";
+
 
 export default function Students() {
   const location = useLocation();
@@ -22,6 +23,8 @@ export default function Students() {
   const [isSwitchingPage, setIsSwitchingPage] = useState(false);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [search, setSearch] = useState("");
+  const breadcrumb = useContext(BreadcrumbContext);
+  breadcrumb?.setBreadcrumb([{ label: "Dashboard", to: "/" }, { label: "Alunos" }]);
 
   const updatePageInUrl = (page: number) => {
     const searchParams = new URLSearchParams(location.search);
@@ -106,16 +109,8 @@ export default function Students() {
       />
 
       <section className="space-y-6">
-        <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-          <Breadcrumb items={[{ label: "Dashboard", to: "/" }, { label: "Alunos" }]} />
-          <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <h2 className="text-3xl font-semibold text-card-foreground">Alunos</h2>
-              <p className="mt-1 text-muted-foreground">Lista de alunos cadastrados e em acompanhamento.</p>
-            </div>
-          </div>
-        </div>
-
+        <h2 className="text-3xl font-semibold text-card-foreground">Alunos</h2>
+        <p className="mt-1 text-muted-foreground">Lista de alunos cadastrados e em acompanhamento.</p>
         <div className="flex justify-center">
           <Card className="w-full max-w-6xl overflow-hidden">
             <div className="flex flex-col gap-3 border-b border-border bg-popover/80 p-4 md:flex-row md:items-center md:justify-between">
@@ -135,7 +130,7 @@ export default function Students() {
               </Button>
             </div>
 
-              <table className="w-full border-collapse">
+            <table className="w-full border-collapse">
               <thead className="border-b border-border bg-popover/80">
                 <tr>
                   <th className="px-4 py-3 text-left">Nome</th>
@@ -187,7 +182,7 @@ export default function Students() {
                       <td className="px-4 py-3">
                         <Link
                           to={`/students/${student.id}`}
-                          className="rounded-full border border-border px-3 py-1.5 text-sm font-medium text-card-foreground transition hover:border-primary hover:bg-primary/10 hover:text-primary-foreground"
+                          className="rounded-full border border-border px-3 py-1.5 text-sm font-medium text-card-foreground transition hover:border-primary hover:bg-primary/10"
                         >
                           Ver detalhes
                         </Link>

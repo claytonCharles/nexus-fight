@@ -1,6 +1,12 @@
 import { Card } from "@/components/ui/card";
+import { BreadcrumbContext } from "@/contexts/breadcrumb";
+
+import { useContext } from "react";
 
 export default function Home() {
+  const breadcrumb = useContext(BreadcrumbContext);
+  breadcrumb?.setBreadcrumb([{ label: "Dashboard", to: "/" }]);
+
   return (
     <section className="p-4 sm:p-6 lg:p-8">
       <Card className="max-w-4xl">
