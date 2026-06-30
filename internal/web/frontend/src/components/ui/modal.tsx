@@ -15,12 +15,18 @@ export function Modal({ open, onClose, title, description, children, footer }: M
   useEffect(() => {
     if (!open) return;
 
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
 
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
   }, [open, onClose]);
 
   if (!open) return null;
@@ -39,7 +45,9 @@ export function Modal({ open, onClose, title, description, children, footer }: M
           </Button>
         </div>
 
-        <div className="px-6 py-6 text-card-foreground">{children}</div>
+        <div className={`${footer ? "max-h-[75vh]" : "max-h-[80vh]"} overflow-y-auto px-6 py-6 text-card-foreground`}>
+          {children}
+        </div>
 
         {footer ? <div className="flex justify-end gap-2 border-t border-border px-6 py-4">{footer}</div> : null}
       </div>
