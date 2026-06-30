@@ -8,6 +8,7 @@ import (
 	"github.com/claytonCharles/nexus-fight/internal/database"
 	"github.com/claytonCharles/nexus-fight/internal/modules/bioimpedances"
 	"github.com/claytonCharles/nexus-fight/internal/modules/students"
+	"github.com/claytonCharles/nexus-fight/internal/modules/users"
 	"github.com/claytonCharles/nexus-fight/internal/web"
 	"github.com/claytonCharles/nexus-fight/pkg/nexus"
 	middlewares "github.com/claytonCharles/nexus-fight/pkg/nexus/middleware"
@@ -30,6 +31,9 @@ func main() {
 		app.Logger.Error("Fail on running migrations!", err)
 		panic("Fail on running migrations!")
 	}
+
+	uh := users.NewHandler(db, app.Logger)
+	app.POST("/api/user/setup", uh.CreateFirstUser)
 
 	hs := students.NewHandler(db, app.Logger)
 	app.GET("/api/student/list", hs.ListStudents)
