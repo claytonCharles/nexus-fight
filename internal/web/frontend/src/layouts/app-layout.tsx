@@ -106,7 +106,7 @@ export default function AppLayout() {
                     size="sm"
                     onClick={async () => {
                       await logout();
-                      navigate("/auth", { replace: true });
+                      navigate("/login", { replace: true });
                     }}
                   >
                     <LogOut className="h-4 w-4" />

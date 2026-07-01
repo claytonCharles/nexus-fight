@@ -39,7 +39,10 @@ export default function AuthForm({
     <div className="flex min-h-screen items-center justify-center bg-background p-6">
       <Card className="w-full max-w-md p-6 sm:p-8">
         <div className="space-y-2 text-center">
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">Nexus Fight</p>
+          <span className="flex flex-col justify-center items-center gap-2">
+            <img src="/icon.svg" alt="Nexus Fight" className="size-10" />
+            <p className="text-md font-bold uppercase tracking-[0.2em] text-foreground ">Nexus Fight</p>
+          </span>
           <h1 className="text-2xl font-semibold text-card-foreground">
             {isRegister ? "Criar conta" : "Entrar no sistema"}
           </h1>
@@ -110,7 +113,7 @@ export default function AuthForm({
               onClick={canRegister ? onSwitchMode : undefined}
               disabled={!canRegister}
             >
-              {canRegister ? "Criar primeira conta" : "Primeira conta já criada"}
+              {canRegister ? "Criar primeira conta" : ""}
             </button>
           )}
         </div>

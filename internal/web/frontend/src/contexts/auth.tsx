@@ -35,16 +35,6 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-function hasSessionCookie() {
-  if (typeof document === "undefined") return false;
-  return document.cookie
-    .split(";")
-    .some((cookie) => cookie.trim().startsWith("session_token="));
-}
-
-function clearStoredUser() {
-  return;
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -52,12 +42,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     async function loadCurrentUser() {
-      if (!hasSessionCookie()) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
       try {
         const currentUser = await meService();
         setUser(currentUser);
@@ -94,7 +78,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // ignore and clear local state
     }
 
-    clearStoredUser();
     setUser(null);
   };
 

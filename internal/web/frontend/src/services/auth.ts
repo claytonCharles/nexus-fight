@@ -17,12 +17,12 @@ type CanRegisterResponse = {
 };
 
 type AuthUserPayload = {
-  ID?: string;
-  Name?: string;
-  Email?: string;
-  Active?: boolean;
-  CreatedAt?: string;
-  UpdatedAt?: string;
+  id: string;
+  name: string;
+  email: string;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
 };
 
 type AuthUser = {
@@ -102,10 +102,10 @@ export async function me(): Promise<AuthUser | null> {
     }
 
     return {
-      id: data.ID ?? "",
-      name: data.Name ?? "",
-      email: data.Email ?? "",
-      active: data.Active ?? false,
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      active: data.active,
     };
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 403) {
