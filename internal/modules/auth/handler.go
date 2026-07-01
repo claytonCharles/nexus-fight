@@ -15,10 +15,10 @@ type AuthHandler struct {
 	service *AuthService
 }
 
-func NewHandler(db *database.DB, log *logger.Logger) *AuthHandler {
+func NewHandler(db *database.DB, log *logger.Logger, cache *nexus.CacheMemory) *AuthHandler {
 	repository := users.NewRepository(db)
 	return &AuthHandler{
-		service: NewService(repository, log),
+		service: NewService(repository, log, cache),
 	}
 }
 
@@ -31,24 +31,52 @@ func (uh *AuthHandler) Login(hc *nexus.HttpContext) {
 
 	user, err := uh.service.CheckCredentials(loginDto)
 	if err != nil {
-		hc.ResponseJson(err.Error(), 400)
+		hc.ResponseJson(err.Error(), 403)
 		return
 	}
 
-	sessionToken, csrfToken := uh.service.GetSessionsTokens()
+	session, err := uh.service.GenerateSession(user)
+	if err != nil {
+		hc.ResponseJson(err.Error(), 403)
+		return
+	}
+
 	http.SetCookie(hc.Writer, &http.Cookie{
 		Name:     "session_token",
-		Value:    sessionToken,
-		Expires:  time.Now().Add(time.Hour * 2),
+		Value:    session.SessionToken,
+		Expires:  time.Now().Add(session.Duration),
 		HttpOnly: true,
 	})
 
 	http.SetCookie(hc.Writer, &http.Cookie{
 		Name:     "csrf_token",
-		Value:    csrfToken,
-		Expires:  time.Now().Add(time.Hour * 2),
+		Value:    session.CSRFToken,
+		Expires:  time.Now().Add(session.Duration),
 		HttpOnly: false,
 	})
 
-	hc.ResponseJson(user, 200)
+	hc.ResponseJson("Authenticated successfully!", 204)
+}
+
+func (uh *AuthHandler) Logout(hc *nexus.HttpContext) {
+	session, _ := hc.Request.Cookie("session_token")
+
+	uh.service.InvalidateSession(session.Value)
+
+	http.SetCookie(hc.Writer, &http.Cookie{
+		Name:     "session_token",
+		Value:    "",
+		Expires:  time.Now().Add(-time.Hour),
+		HttpOnly: true,
+	})
+
+	http.SetCookie(hc.Writer, &http.Cookie{
+		Name:     "csrf_token",
+		Value:    "",
+		Expires:  time.Now().Add(-time.Hour),
+		HttpOnly: false,
+	})
+
+	hc.ResponseJson("Logout successfully!", 204)
+
 }

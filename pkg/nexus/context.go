@@ -14,6 +14,7 @@ import (
 type HttpContext struct {
 	Writer  http.ResponseWriter
 	Request *http.Request
+	session map[string]any
 }
 
 type ValidateError map[string][]string
@@ -22,11 +23,21 @@ func NewContext(writer http.ResponseWriter, req *http.Request) *HttpContext {
 	return &HttpContext{
 		Writer:  writer,
 		Request: req,
+		session: make(map[string]any),
 	}
 }
 
 func (hc *HttpContext) Params() url.Values {
 	return hc.Request.URL.Query()
+}
+
+func (hc *HttpContext) SessionGet(key string) (any, bool) {
+	v, ok := hc.session[key]
+	return v, ok
+}
+
+func (hc *HttpContext) SessionSet(key string, value any) {
+	hc.session[key] = value
 }
 
 func (hc *HttpContext) ResponseJson(data any, status int) {

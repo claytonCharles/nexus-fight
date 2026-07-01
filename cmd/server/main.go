@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/claytonCharles/nexus-fight/internal/database"
 	"github.com/claytonCharles/nexus-fight/internal/modules/auth"
@@ -16,6 +18,9 @@ import (
 )
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	app := nexus.NewApp()
 	app.UseMiddleware(middlewares.Recovering())
 	app.UseMiddleware(middlewares.Logging())
@@ -33,8 +38,13 @@ func main() {
 		panic("Fail on running migrations!")
 	}
 
-	ah := auth.NewHandler(db, app.Logger)
+	cache := nexus.NewCache(ctx, time.Minute*5)
+
+	authMiddleware := auth.AuthMiddleware(cache)
+
+	ah := auth.NewHandler(db, app.Logger, cache)
 	app.POST("/api/auth/login", ah.Login)
+	app.GET("/api/auth/logout", ah.Logout, authMiddleware)
 
 	uh := users.NewHandler(db, app.Logger)
 	app.POST("/api/user/setup", uh.CreateFirstUser)
