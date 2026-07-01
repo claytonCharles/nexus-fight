@@ -71,6 +71,18 @@ func (cm *CacheMemory) Set(key string, value any, expiration time.Duration) {
 	}
 }
 
+func (cm *CacheMemory) Delete(key string) {
+	cm.rwmu.Lock()
+	defer cm.rwmu.Unlock()
+
+	_, ok := cm.items[key]
+	if !ok {
+		return
+	}
+
+	delete(cm.items, key)
+}
+
 func (cm *CacheMemory) clearExpirations() {
 	now := time.Now().UnixNano()
 	expKeys := cm.getExpiredKeys(now)

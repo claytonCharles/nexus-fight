@@ -40,7 +40,7 @@ func (us *UserService) CreateUser(userDto dtos.UserRegisterDTO, first bool) erro
 		}
 	}
 
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(userDto.Password), 14)
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(userDto.Password), 12)
 	if err != nil {
 		us.logger.Error(ErrPasswordInvalid.Error(), err)
 		return ErrPasswordInvalid

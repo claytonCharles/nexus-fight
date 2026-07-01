@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router";
-import { Home, PanelLeft, Users, X, Sun, Moon } from "lucide-react";
+import { Home, PanelLeft, Users, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/contexts/theme";
 import { useMemo, useState } from "react";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/ui/breadcrumb";
