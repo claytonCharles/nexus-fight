@@ -1,9 +1,11 @@
-import { Outlet, Link, useLocation } from "react-router";
-import { Home, PanelLeft, Users, Sun, Moon } from "lucide-react";
+import { Outlet, Link, useLocation, useNavigate } from "react-router";
+import { Home, PanelLeft, Users, Sun, Moon, LogOut } from "lucide-react";
 import { useTheme } from "@/contexts/theme";
 import { useMemo, useState } from "react";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/ui/breadcrumb";
 import { BreadcrumbContext } from "@/contexts/breadcrumb";
+import { useAuth } from "@/contexts/auth";
+import { Button } from "@/components/ui/button";
 
 export default function AppLayout() {
   const location = useLocation();
@@ -11,6 +13,8 @@ export default function AppLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [items, setItems] = useState<BreadcrumbItem[]>([]);
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const value = useMemo(() => ({ setBreadcrumb: setItems, }), []);
   const navItems = [
@@ -91,9 +95,23 @@ export default function AppLayout() {
                   </nav>
                 </div>
                 <div className="flex items-center gap-3">
+                  <div className="hidden text-sm text-muted-foreground sm:block">
+                    {user?.name ?? "Usuário"}
+                  </div>
                   <button className="rounded-xl p-2 text-foreground" aria-label="Trocar tema" onClick={() => toggleTheme()}>
                     {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                   </button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={async () => {
+                      await logout();
+                      navigate("/login", { replace: true });
+                    }}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sair
+                  </Button>
                 </div>
               </div>
             </header>
