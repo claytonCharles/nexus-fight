@@ -1,7 +1,10 @@
 package users
 
 import (
+	"database/sql"
+
 	"github.com/claytonCharles/nexus-fight/internal/database"
+	"github.com/claytonCharles/nexus-fight/internal/modules/users/models"
 	"github.com/google/uuid"
 )
 
@@ -25,6 +28,29 @@ func (ur *UserRepository) ExistsUsers() (bool, error) {
 	}
 
 	return exists, nil
+}
+
+func (ur *UserRepository) GetUserByEmail(email string) (*models.User, error) {
+	query := "SELECT * FROM tb_users WHERE email = ?"
+
+	var user models.User
+	if err := ur.db.Conn.QueryRow(query, email).Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.PasswordHash,
+		&user.Active,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 func (ur *UserRepository) CreateUser(name string, email string, passwordHash string) error {

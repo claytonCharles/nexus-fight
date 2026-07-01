@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/claytonCharles/nexus-fight/internal/database"
+	"github.com/claytonCharles/nexus-fight/internal/modules/auth"
 	"github.com/claytonCharles/nexus-fight/internal/modules/bioimpedances"
 	"github.com/claytonCharles/nexus-fight/internal/modules/students"
 	"github.com/claytonCharles/nexus-fight/internal/modules/users"
@@ -31,6 +32,9 @@ func main() {
 		app.Logger.Error("Fail on running migrations!", err)
 		panic("Fail on running migrations!")
 	}
+
+	ah := auth.NewHandler(db, app.Logger)
+	app.POST("/api/auth/login", ah.Login)
 
 	uh := users.NewHandler(db, app.Logger)
 	app.POST("/api/user/setup", uh.CreateFirstUser)
