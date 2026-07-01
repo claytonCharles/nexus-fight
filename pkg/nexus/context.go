@@ -48,6 +48,10 @@ func (hc *HttpContext) ResponseJson(data any, status int) {
 	}
 }
 
+func (hc *HttpContext) ResponseNoContent() {
+	hc.Writer.WriteHeader(http.StatusNoContent)
+}
+
 func (hc *HttpContext) InternalError() {
 	http.Error(hc.Writer, "Erro Interno", http.StatusInternalServerError)
 }

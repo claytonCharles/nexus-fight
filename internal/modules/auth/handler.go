@@ -44,40 +44,49 @@ func (uh *AuthHandler) Login(hc *nexus.HttpContext) {
 	http.SetCookie(hc.Writer, &http.Cookie{
 		Name:     "session_token",
 		Value:    session.SessionToken,
+		Path:     "/",
 		Expires:  time.Now().Add(session.Duration),
 		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
 	})
 
 	http.SetCookie(hc.Writer, &http.Cookie{
 		Name:     "csrf_token",
 		Value:    session.CSRFToken,
+		Path:     "/",
 		Expires:  time.Now().Add(session.Duration),
 		HttpOnly: false,
+		SameSite: http.SameSiteLaxMode,
 	})
 
-	hc.ResponseJson("Authenticated successfully!", 204)
+	hc.ResponseNoContent()
 }
 
 func (uh *AuthHandler) Logout(hc *nexus.HttpContext) {
-	session, _ := hc.Request.Cookie("session_token")
-
-	uh.service.InvalidateSession(session.Value)
+	session, err := hc.Request.Cookie("session_token")
+	if err == nil {
+		uh.service.InvalidateSession(session.Value)
+	}
 
 	http.SetCookie(hc.Writer, &http.Cookie{
 		Name:     "session_token",
 		Value:    "",
-		Expires:  time.Now().Add(-time.Hour),
+		Path:     "/",
+		MaxAge:   -1,
+		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
 	})
 
 	http.SetCookie(hc.Writer, &http.Cookie{
 		Name:     "csrf_token",
 		Value:    "",
-		Expires:  time.Now().Add(-time.Hour),
+		Path:     "/",
+		MaxAge:   -1,
+		Expires:  time.Unix(0, 0),
 		HttpOnly: false,
 	})
 
-	hc.ResponseJson("Logout successfully!", 204)
+	hc.ResponseNoContent()
 }
 
 func (uh *AuthHandler) GetAuthUser(hc *nexus.HttpContext) {
