@@ -44,21 +44,23 @@ func main() {
 
 	ah := auth.NewHandler(db, app.Logger, cache)
 	app.POST("/api/auth/login", ah.Login)
+	app.GET("/api/auth/can-register", ah.CanRegister)
 	app.GET("/api/auth/logout", ah.Logout, authMiddleware)
+	app.GET("/api/auth/me", ah.GetAuthUser, authMiddleware)
 
 	uh := users.NewHandler(db, app.Logger)
 	app.POST("/api/user/setup", uh.CreateFirstUser)
 
 	hs := students.NewHandler(db, app.Logger)
-	app.GET("/api/student/list", hs.ListStudents)
-	app.GET("/api/student/show", hs.ShowStudent)
-	app.POST("/api/student/create", hs.CreateStudent)
-	app.POST("/api/student/update", hs.UpdateStudent)
-	app.DELETE("/api/student/delete", hs.DeactivateStudent)
+	app.GET("/api/student/list", hs.ListStudents, authMiddleware)
+	app.GET("/api/student/show", hs.ShowStudent, authMiddleware)
+	app.POST("/api/student/create", hs.CreateStudent, authMiddleware)
+	app.POST("/api/student/update", hs.UpdateStudent, authMiddleware)
+	app.DELETE("/api/student/delete", hs.DeactivateStudent, authMiddleware)
 
 	hb := bioimpedances.NewHandler(db, app.Logger)
-	app.GET("/api/bioimpedance/list", hb.ListBios)
-	app.POST("/api/bioimpedance/create", hb.CreateBio)
+	app.GET("/api/bioimpedance/list", hb.ListBios, authMiddleware)
+	app.POST("/api/bioimpedance/create", hb.CreateBio, authMiddleware)
 
 	app.Handler("/", web.SpaHandler())
 

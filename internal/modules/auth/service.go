@@ -22,6 +22,7 @@ type AuthService struct {
 
 var (
 	ErrInvalidCredentials = errors.New("Invalid Credentials!")
+	ErrUserExists         = errors.New("Users already exists!")
 )
 
 func NewService(userRepo *users.UserRepository, log *logger.Logger, cache *nexus.CacheMemory) *AuthService {
@@ -78,6 +79,16 @@ func (as *AuthService) GenerateSession(user *models.User) (*dtos.Session, error)
 
 func (as *AuthService) InvalidateSession(sessionID string) {
 	as.cache.Delete(sessionID)
+}
+
+func (as *AuthService) CheckExistUsers() (bool, error) {
+	exists, err := as.userRepository.ExistsUsers()
+	if err != nil {
+		as.logger.Error(ErrUserExists.Error(), err)
+		return false, ErrUserExists
+	}
+
+	return !exists, nil
 }
 
 func (as *AuthService) generateToken(length int) string {

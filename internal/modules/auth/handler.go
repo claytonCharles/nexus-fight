@@ -78,5 +78,24 @@ func (uh *AuthHandler) Logout(hc *nexus.HttpContext) {
 	})
 
 	hc.ResponseJson("Logout successfully!", 204)
+}
 
+func (uh *AuthHandler) GetAuthUser(hc *nexus.HttpContext) {
+	user, ok := hc.SessionGet("user")
+	if !ok {
+		hc.ResponseJson(ErrInvalidCredentials.Error(), 403)
+		return
+	}
+
+	hc.ResponseJson(user, 200)
+}
+
+func (uh *AuthHandler) CanRegister(hc *nexus.HttpContext) {
+	can, err := uh.service.CheckExistUsers()
+	if err != nil {
+		hc.ResponseJson(err.Error(), 403)
+		return
+	}
+
+	hc.ResponseJson(map[string]any{"can_register": can}, 200)
 }
