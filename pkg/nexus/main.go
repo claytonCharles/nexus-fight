@@ -40,6 +40,10 @@ func (nx *Nexus) POST(path string, handler HandlerFunc, middlewares ...Middlewar
 	nx.router.Resolve(path, http.MethodPost, handler, middlewares...)
 }
 
+func (nx *Nexus) PUT(path string, handler HandlerFunc, middlewares ...Middleware) {
+	nx.router.Resolve(path, http.MethodPut, handler, middlewares...)
+}
+
 func (nx *Nexus) DELETE(path string, handler HandlerFunc, middlewares ...Middleware) {
 	nx.router.Resolve(path, http.MethodDelete, handler, middlewares...)
 }
